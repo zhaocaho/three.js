@@ -8,6 +8,8 @@ import {
 	NoToneMapping,
 	LinearMipmapLinearFilter,
 	SRGBColorSpace,
+	NoColorSpace,
+	LinearSRGBColorSpace,
 	RGBAIntegerFormat,
 	RGIntegerFormat,
 	RedIntegerFormat,
@@ -1751,7 +1753,7 @@ class WebGLRenderer {
 
 			const fog = scene.fog;
 			const environment = material.isMeshStandardMaterial ? scene.environment : null;
-			const colorSpace = ( _currentRenderTarget === null ) ? _this.outputColorSpace : _currentRenderTarget.texture.colorSpace;
+			const colorSpace = getRenderTargetColorSpace();
 			const envMap = ( material.isMeshStandardMaterial ? cubeuvmaps : cubemaps ).get( material.envMap || environment );
 			const vertexAlphas = material.vertexColors === true && !! geometry.attributes.color && geometry.attributes.color.itemSize === 4;
 			const vertexTangents = !! geometry.attributes.tangent && ( !! material.normalMap || material.anisotropy > 0 );
@@ -2126,6 +2128,22 @@ class WebGLRenderer {
 			}
 
 			return program;
+
+		}
+
+		function getRenderTargetColorSpace() {
+
+			if ( _currentRenderTarget === null ) return _this.outputColorSpace;
+
+			if ( _currentRenderTarget.isXRRenderTarget === true ) return _currentRenderTarget.texture.colorSpace;
+
+			if ( _currentRenderTarget.texture.colorSpace !== NoColorSpace ) {
+
+				return _currentRenderTarget.texture.colorSpace;
+
+			}
+
+			return LinearSRGBColorSpace;
 
 		}
 
